@@ -80,7 +80,7 @@ func GetPixel(w http.ResponseWriter, r *http.Request) {
 
 // ServeHTML serves the HTML page with the canvas
 func ServeHTML(w http.ResponseWriter, r *http.Request) {
-    tmpl, err := template.ParseFiles("index.html")
+    tmpl, err := template.ParseFiles("static/index.html")
     if err != nil {
         http.Error(w, "Error loading template", http.StatusInternalServerError)
         return
@@ -90,7 +90,7 @@ func ServeHTML(w http.ResponseWriter, r *http.Request) {
 
 // ServeDocs serves the HTML page with the documentation for the api
 func ServeDocs(w http.ResponseWriter, r *http.Request) {
-    tmpl, err := template.ParseFiles("docs.html")
+    tmpl, err := template.ParseFiles("static/docs.html")
     if err != nil {
         http.Error(w, "Error loading template", http.StatusInternalServerError)
         return
