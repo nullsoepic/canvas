@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vibing's Canvas Docs</title>
+  <style>
+      body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+          line-height: 1.6;
+          margin: 0;
+          padding: 2rem;
+          background: #0c0c0d;
+          color: #f1f1fa;
+      }
+
+      .container {
+          max-width: 800px;
+          margin: 0 auto;
+      }
+
+      .back-link {
+          position: absolute;
+          top: 1rem;
+          left: 1rem;
+          color: #2a2a2e;
+          text-decoration: none;
+      }
+
+      .back-link:hover {
+          color: #3a3a3e;
+      }
+
+      h1, h2, h3 {
+          color: #f1f1fa;
+          margin-top: 2rem;
+      }
+
+      h1 {
+          border-bottom: 2px solid #2a2a2e;
+          padding-bottom: 0.5rem;
+      }
+
+      .endpoint {
+          background: #1c1c1d;
+          border-radius: 8px;
+          padding: 1.5rem;
+          margin: 1.5rem 0;
+      }
+
+      .method {
+          display: inline-block;
+          padding: 0.3rem 0.8rem;
+          border-radius: 4px;
+          font-weight: bold;
+      }
+
+      .get {
+          background: #2e8b57;
+          color: #f1f1fa;
+      }
+
+      .post {
+          background: #4169e1;
+          color: #f1f1fa;
+      }
+
+      .url-path {
+          color: #8f8fff;
+          font-family: monospace;
+          font-size: 1.1em;
+      }
+
+      pre {
+          background: #1c1c1d;
+          padding: 1rem;
+          border-radius: 4px;
+          overflow-x: auto;
+          white-space: pre-wrap;
+      }
+
+      code {
+          font-family: monospace;
+          color: #8f8fff;
+      }
+
+      .footer {
+          margin-top: 3rem;
+          padding-top: 1rem;
+          border-top: 1px solid #2a2a2e;
+          font-size: 0.9em;
+          color: #888;
+      }
+  </style>
+</head>
+<body>
+  <a href="/" class="back-link"><- Back to Canvas</a>
+  <div class="container">
+      <h1>Vibing's Canvas Documentation</h1>
+      
+      <div class="general-info">
+          <h2>General Information</h2>
+          <p>We have a silly pixel canvas, you can watch it in real-time or place pixels by yourself</p>
+          <ul>
+              <li>Base URL: <code id="base-url">https://localhost:9999</code></li>
+              <script>
+                const baseUrl = window.location.origin;
+                document.getElementById('base-url').textContent = baseUrl;
+              </script>
+              <li>Currently ratelimiting is disabled</li>
+              <li>The canvas is currently 512x512</li>
+          </ul>
+      </div>
+
+      <h2>Endpoints</h2>
+
+      <div class="endpoint">
+          <h3>1. Get Pixel</h3>
+          <p><span class="method get">GET</span> <span class="url-path">/getPixel</span></p>
+          <p>Retrieves the color of a specific pixel on the canvas.</p>
+
+          <h4>Query Parameters:</h4>
+          <ul>
+              <li><code>x</code> (required): The x-coordinate of the pixel.</li>
+              <li><code>y</code> (required): The y-coordinate of the pixel.</li>
+          </ul>
+
+          <h4>Response:</h4>
+          <ul>
+              <li><strong>Success (200 OK):</strong> JSON object containing the RGB values of the pixel.
+                  <pre>{
+    "r": 255,
+    "g": 0,
+    "b": 0
+}</pre>
+              </li>
+              <li><strong>Error (400 Bad Request):</strong> Invalid coordinates.</li>
+          </ul>
+      </div>
+
+      <div class="endpoint">
+          <h3>2. Update Pixel</h3>
+          <p><span class="method post">POST</span> <span class="url-path">/updatePixel</span></p>
+          <p>Updates the color of a specific pixel on the canvas.</p>
+
+          <h4>Request Body:</h4>
+          <p>JSON object containing the pixel coordinates and new RGB values.</p>
+          <pre>{
+    "x": 100,
+    "y": 100,
+    "r": 255,
+    "g": 0,
+    "b": 0
+}</pre>
+
+          <h4>Response:</h4>
+          <ul>
+              <li><strong>Success (200 OK):</strong> Pixel updated successfully.</li>
+              <li><strong>Error (400 Bad Request):</strong> Invalid coordinates or malformed JSON.</li>
+          </ul>
+      </div>
+
+      <div class="endpoint">
+          <h3>3. Live View</h3>
+          <p><span class="method get">GET</span> <span class="url-path">/</span></p>
+          <p>Serves HTML page with live updating canvas.</p>
+
+          <h4>Response:</h4>
+          <ul>
+              <li><strong>Success (200 OK)</strong></li>
+          </ul>
+      </div>
+
+      <div class="footer">
+          <p>Vibing's Pixel Canvas</p>
+          <p>Made with ☕ by Vibing | @mevibing on discord</p>
+      </div>
+  </div>
+</body>
+</html>
