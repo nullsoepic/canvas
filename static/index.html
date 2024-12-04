@@ -18,29 +18,36 @@
                 height: 1024px;
                 image-rendering: pixelated;
             }
-            .docs-link {
+            .link {
                 position: absolute;
-                bottom: 20px;
-                left: 20px;
                 color: #2a2a2b;
                 text-decoration: none;
                 font-family: sans-serif;
             }
-            .docs-link:hover {
+            .link:hover {
                 color: #3a3a3b;
+            }
+            .docs-link {
+                bottom: 20px;
+                left: 20px;
+            }
+            .discord-link {
+                top: 20px;
+                left: 20px;
             }
         </style>
     </head>
     <body>
         <canvas id="canvas" width="512" height="512"></canvas>
-        <a href="/docs" class="docs-link">Documentation</a>
+        <a href="/docs" class="link docs-link">Documentation</a>
+        <a href="https://discord.gg/dqezDtGQbD" class="link discord-link">Discord</a>
         <script>
             const canvas = document.getElementById("canvas");
             const ctx = canvas.getContext("2d");
             ctx.fillStyle = "#0c0c0d";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            const ws = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + "/ws");
+            const ws = new WebSocket("wss://" + window.location.host + "/ws/stream");
             ws.binaryType = 'arraybuffer';
             
             ws.onmessage = function (event) {

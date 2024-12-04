@@ -11,7 +11,6 @@ import (
 	"time"
 )
 
-// Pixel structure for JSON response
 type Pixel struct {
     X int `json:"x"`
     Y int `json:"y"`
@@ -27,8 +26,8 @@ func main() {
     http.HandleFunc("/docs", ServeDocs)
     http.HandleFunc("/updatePixel", UpdatePixel)
     http.HandleFunc("/getPixel", GetPixel)
-    http.HandleFunc("/ws", HandleDataWS)
-    http.HandleFunc("/cws", WebSocketUpdatePixel)
+    http.HandleFunc("/ws/stream", HandleDataWS)
+    http.HandleFunc("/ws/draw", HandleDrawWS)
 
     go handleMessages()
 
