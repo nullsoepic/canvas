@@ -2,18 +2,22 @@ package main
 
 import (
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
 
-var wsDrawingUpgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
+var (
+	wsDrawingUpgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
+	drawingMutex sync.Mutex
+)
 
 func HandleDrawWS(w http.ResponseWriter, r *http.Request) {
 	conn, err := wsDrawingUpgrader.Upgrade(w, r, nil)
@@ -40,7 +44,9 @@ func HandleDrawWS(w http.ResponseWriter, r *http.Request) {
 			conn.WriteMessage(websocket.TextMessage, []byte("err"))
 			continue
 		}
+		drawingMutex.Lock()
 		placePixel(data.X, data.Y, data.R, data.G, data.B)
+		drawingMutex.Unlock()
 		conn.WriteMessage(websocket.TextMessage, []byte("ok"))
 		inactivityTimer.Reset(30 * time.Second)
 	}
