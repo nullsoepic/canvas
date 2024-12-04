@@ -7,11 +7,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 	"time"
-
-	"github.com/gorilla/websocket"
 )
 
 // Pixel structure for JSON response
@@ -23,21 +20,15 @@ type Pixel struct {
     B int `json:"b"`
 }
 
-// Connected clients
-var clients = make(map[*websocket.Conn]bool)
-var clientsLock sync.Mutex
-
-// Broadcast channel
-var broadcast = make(chan Pixel)
-
 func main() {
     loadCanvas()
     
-    http.HandleFunc("/", ServeHTML)
+    http.HandleFunc("/", ServeIndex)
     http.HandleFunc("/docs", ServeDocs)
     http.HandleFunc("/updatePixel", UpdatePixel)
     http.HandleFunc("/getPixel", GetPixel)
-    http.HandleFunc("/ws", HandleWebSocket)
+    http.HandleFunc("/ws", HandleDataWS)
+    http.HandleFunc("/cws", WebSocketUpdatePixel)
 
     go handleMessages()
 

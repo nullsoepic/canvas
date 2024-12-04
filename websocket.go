@@ -4,9 +4,14 @@ import (
 	"encoding/binary"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
+
+// Connected wsClients
+var wsClients = make(map[*websocket.Conn]bool)
+var wsClientsLock sync.Mutex
 
 // WebSocket upgrader
 var upgrader = websocket.Upgrader{
@@ -17,8 +22,8 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-// HandleWebSocket handles WebSocket connections
-func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
+// HandleDataWS handles WebSocket connections
+func HandleDataWS(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -67,19 +72,19 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	clientsLock.Lock()
-	clients[conn] = true
-	clientsLock.Unlock()
+	wsClientsLock.Lock()
+	wsClients[conn] = true
+	wsClientsLock.Unlock()
 
 	for {
 		var pixel Pixel
 		err := conn.ReadJSON(&pixel)
 		if err != nil {
-			clientsLock.Lock()
-			delete(clients, conn)
-			clientsLock.Unlock()
+			wsClientsLock.Lock()
+			delete(wsClients, conn)
+			wsClientsLock.Unlock()
 			break
 		}
-		broadcast <- pixel
+		dataBroadcast <- pixel
 	}
 }

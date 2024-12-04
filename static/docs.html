@@ -193,6 +193,31 @@
           <br><a href="https://gist.github.com/nullsoepic/d9182f84b22c6224915c3c32064afdeb">Example code is available.</a></p>
       </div>
 
+      <div class="endpoint">
+          <h3>5. WebSocket Drawing API</h3>
+          <p><span class="method get">GET</span> <span class="url-path">/cws</span></p>
+          <p>Establishes a WebSocket connection for updating pixels on the canvas.</p>
+
+          <h4>Data Format:</h4>
+          <ul>
+              <li><strong>Request:</strong> JSON object containing the pixel coordinates and new RGB values.
+                  <pre>{
+    "x": 100,
+    "y": 100,
+    "r": 255,
+    "g": 0,
+    "b": 0
+}</pre>
+              </li>
+              <li><strong>Response:</strong> Text message indicating the result of the operation.
+                  <ul>
+                      <li><code>ok</code>: Pixel updated successfully.</li>
+                      <li><code>err</code>: Error occurred during the operation.</li>
+                  </ul>
+              </li>
+          </ul>
+      </div>
+
       <div class="footer">
           <p>Vibing's Pixel Canvas</p>
           <p>Made with ☕ by Vibing | @mevibing on discord</p>

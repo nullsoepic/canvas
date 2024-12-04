@@ -11,13 +11,15 @@ import (
 var broadcastBatchSize = 100
 var broadcastTimeout = 30 * time.Millisecond
 
+var dataBroadcast = make(chan Pixel)
+
 func handleMessages() {
     var pixels []Pixel
     ticker := time.NewTicker(broadcastTimeout)
     defer ticker.Stop()
     for {
         select {
-        case pixel := <-broadcast:
+        case pixel := <-dataBroadcast:
             pixels = append(pixels, pixel)
             if len(pixels) >= broadcastBatchSize {
                 sendBatch(pixels, 0x00)
@@ -45,14 +47,14 @@ func sendBatch(pixels []Pixel, msgType byte) {
         buf[offset+6] = uint8(pixel.B)
         offset += 7
     }
-    clientsLock.Lock()
-    for client := range clients {
+    wsClientsLock.Lock()
+    for client := range wsClients {
         err := client.WriteMessage(websocket.BinaryMessage, buf)
         if err != nil {
             log.Printf("Error sending message: %v", err)
             client.Close()
-            delete(clients, client)
+            delete(wsClients, client)
         }
     }
-    clientsLock.Unlock()
+    wsClientsLock.Unlock()
 }

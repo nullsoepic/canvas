@@ -53,7 +53,5 @@ func loadCanvas() {
 func placePixel(x, y int, r, g, b int) {
     if x >= 0 && x < 512 && y >= 0 && y < 512 {
         canvas[y][x] = [3]int{r, g, b}
-    } else {
-        log.Printf("Pixel coordinates out of bounds: (%d, %d)", x, y)
     }
 }
