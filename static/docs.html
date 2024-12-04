@@ -169,6 +169,30 @@
           </ul>
       </div>
 
+      <div class="endpoint">
+          <h3>4. WebSocket</h3>
+          <p><span class="method get">GET</span> <span class="url-path">/ws</span></p>
+          <p>Establishes a WebSocket connection for real-time canvas updates and interaction.</p>
+
+          <h4>Data Format:</h4>
+          <ul>
+              <li><strong>Message Type</strong> (1 byte): <code>0x01</code> (Canvas Data).</li>
+              <li><strong>Number of Pixels</strong> (2 bytes, Big Endian): Unsigned 16-bit integer indicating the number of pixels in this message.</li>
+              <li><strong>Pixel Data</strong> (Variable Length): A sequence of 7-byte chunks, each representing a single pixel:
+                  <ul>
+                      <li><strong>X Coordinate</strong> (2 bytes, Big Endian): Unsigned 16-bit integer.</li>
+                      <li><strong>Y Coordinate</strong> (2 bytes, Big Endian): Unsigned 16-bit integer.</li>
+                      <li><strong>Red</strong> (1 byte): Unsigned 8-bit integer (0-255).</li>
+                      <li><strong>Green</strong> (1 byte): Unsigned 8-bit integer (0-255).</li>
+                      <li><strong>Blue</strong> (1 byte): Unsigned 8-bit integer (0-255).</li>
+                  </ul>
+              </li>
+          </ul>
+          <p>Upon first connection to the websocket the entire canvas is sent in chunks of 5000 pixels.
+          <br>Data is chunked and sent in batches every 30 miliseconds.
+          <br><a href="https://gist.github.com/nullsoepic/d9182f84b22c6224915c3c32064afdeb">Example code is available.</a></p>
+      </div>
+
       <div class="footer">
           <p>Vibing's Pixel Canvas</p>
           <p>Made with ☕ by Vibing | @mevibing on discord</p>

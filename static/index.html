@@ -40,7 +40,7 @@
             ctx.fillStyle = "#0c0c0d";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            const ws = new WebSocket("wss://" + window.location.host + "/ws");
+            const ws = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + "/ws");
             ws.binaryType = 'arraybuffer';
             
             ws.onmessage = function (event) {

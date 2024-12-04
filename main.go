@@ -254,7 +254,7 @@ func loadCanvas() {
 
 func main() {
     loadCanvas()
-
+    
     http.HandleFunc("/", ServeHTML)
     http.HandleFunc("/docs", ServeDocs)
     http.HandleFunc("/updatePixel", UpdatePixel)
@@ -272,7 +272,7 @@ func main() {
         }
     }()
 
-    var port int = 9992
+    var port int = 9999
 
     server := &http.Server{
         Addr: fmt.Sprintf(":%d", port),
