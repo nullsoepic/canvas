@@ -56,7 +56,8 @@ func UpdatePixel(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid coordinates", http.StatusBadRequest)
 		return
 	}
-	canvas[data.Y][data.X] = [3]int{data.R, data.G, data.B}
+	// Use placePixel to update the canvas
+	placePixel(data.X, data.Y, data.R, data.G, data.B)
 	broadcast <- data
 	w.WriteHeader(http.StatusOK)
 }
