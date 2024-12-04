@@ -47,9 +47,13 @@ var broadcast = make(chan Pixel)
 
 // UpdatePixel updates the color of a specific pixel and broadcasts the update
 func UpdatePixel(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodPost {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
+    }
     var data Pixel
     if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
+        http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
         return
     }
     if data.X < 0 || data.X >= 512 || data.Y < 0 || data.Y >= 512 {
@@ -63,6 +67,10 @@ func UpdatePixel(w http.ResponseWriter, r *http.Request) {
 
 // GetPixel retrieves the color of a specific pixel
 func GetPixel(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodGet {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
+    }
     xStr := r.URL.Query().Get("x")
     yStr := r.URL.Query().Get("y")
     
@@ -70,7 +78,11 @@ func GetPixel(w http.ResponseWriter, r *http.Request) {
     x, errX := strconv.Atoi(xStr)
     y, errY := strconv.Atoi(yStr)
     
-    if errX != nil || errY != nil || x < 0 || x >= 512 || y < 0 || y >= 512 {
+    if errX != nil || errY != nil {
+        http.Error(w, "Invalid query parameters", http.StatusBadRequest)
+        return
+    }
+    if x < 0 || x >= 512 || y < 0 || y >= 512 {
         http.Error(w, "Invalid coordinates", http.StatusBadRequest)
         return
     }
@@ -80,29 +92,48 @@ func GetPixel(w http.ResponseWriter, r *http.Request) {
 
 // ServeHTML serves the HTML page with the canvas
 func ServeHTML(w http.ResponseWriter, r *http.Request) {
-    tmpl, err := template.ParseFiles("static/index.html")
-    if err != nil {
-        http.Error(w, "Error loading template", http.StatusInternalServerError)
+    if r.Method != http.MethodGet {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
         return
     }
-    tmpl.Execute(w, nil)
+    tmpl, err := template.ParseFiles("static/index.html")
+    if err != nil {
+        http.Error(w, "Internal server error", http.StatusInternalServerError)
+        return
+    }
+    if err := tmpl.Execute(w, nil); err != nil {
+        http.Error(w, "Failed to execute template", http.StatusInternalServerError)
+        return
+    }
 }
 
 // ServeDocs serves the HTML page with the documentation for the api
 func ServeDocs(w http.ResponseWriter, r *http.Request) {
-    tmpl, err := template.ParseFiles("static/docs.html")
-    if err != nil {
-        http.Error(w, "Error loading template", http.StatusInternalServerError)
+    if r.Method != http.MethodGet {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
         return
     }
-    tmpl.Execute(w, nil)
+    tmpl, err := template.ParseFiles("static/docs.html")
+    if err != nil {
+        http.Error(w, "Internal server error", http.StatusInternalServerError)
+        return
+    }
+    if err := tmpl.Execute(w, nil); err != nil {
+        http.Error(w, "Failed to execute template", http.StatusInternalServerError)
+        return
+    }
 }
 
 // HandleWebSocket handles WebSocket connections
 func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodGet {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
+    }
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-			log.Println(err)
+			log.Printf("Failed to upgrade to WebSocket: %v", err)
+			http.Error(w, "Failed to upgrade to WebSocket", http.StatusInternalServerError)
 			return
 	}
 	defer conn.Close()
@@ -137,7 +168,7 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 			}
 			err := conn.WriteMessage(websocket.BinaryMessage, buf)
 			if err != nil {
-					log.Printf("error sending canvas data: %v", err)
+					log.Printf("Error sending canvas data: %v", err)
 					conn.Close()
 					return
 			}
@@ -201,7 +232,7 @@ func sendBatch(pixels []Pixel, msgType byte) {
     for client := range clients {
         err := client.WriteMessage(websocket.BinaryMessage, buf)
         if err != nil {
-            log.Printf("error sending message: %v", err)
+            log.Printf("Error sending message: %v", err)
             client.Close()
             delete(clients, client)
         }
