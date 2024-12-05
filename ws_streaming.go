@@ -21,10 +21,10 @@ var wsStreamingUpgrader = websocket.Upgrader{
 	},
 }
 
-var broadcastBatchSize = 250
-var broadcastTimeout = 30 * time.Millisecond
+var broadcastBatchSize = 100 // Reduced batch size
+var broadcastTimeout = 10 * time.Millisecond // Reduced timeout
 
-var dataBroadcast = make(chan Pixel)
+var dataBroadcast = make(chan Pixel, 1000) // Increased channel buffer size
 
 func HandleDataWS(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {

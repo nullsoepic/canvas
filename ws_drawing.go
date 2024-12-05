@@ -17,7 +17,25 @@ var (
 		},
 	}
 	drawingMutex sync.Mutex
+	pixelQueue   = make(chan Pixel, 1000) // Buffer size can be adjusted
 )
+
+// Worker function to process pixel placement tasks
+func pixelWorker() {
+	for pixel := range pixelQueue {
+		drawingMutex.Lock()
+		placePixel(pixel.X, pixel.Y, pixel.R, pixel.G, pixel.B)
+		drawingMutex.Unlock()
+	}
+}
+
+func init() {
+	// Start worker pool
+	numWorkers := 10 // Number of workers can be adjusted
+	for i := 0; i < numWorkers; i++ {
+		go pixelWorker()
+	}
+}
 
 func HandleDrawWS(w http.ResponseWriter, r *http.Request) {
 	conn, err := wsDrawingUpgrader.Upgrade(w, r, nil)
@@ -42,11 +60,8 @@ func HandleDrawWS(w http.ResponseWriter, r *http.Request) {
 			conn.WriteMessage(websocket.TextMessage, []byte("err"))
 			continue
 		}
-		go func() {
-			drawingMutex.Lock()
-			defer drawingMutex.Unlock()
-			placePixel(data.X, data.Y, data.R, data.G, data.B)
-			conn.WriteMessage(websocket.TextMessage, []byte("ok"))
-		}()
+		// Send pixel placement task to the channel
+		pixelQueue <- data
+		conn.WriteMessage(websocket.TextMessage, []byte("ok"))
 	}
 }
