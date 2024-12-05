@@ -45,6 +45,9 @@ func main() {
     server := &http.Server{
         Addr: fmt.Sprintf(":%d", port),
         Handler: http.DefaultServeMux,
+        ReadTimeout:  10 * time.Second,
+        WriteTimeout: 10 * time.Second,
+        IdleTimeout:  120 * time.Second,
     }
 
     // Handle OS signals for graceful shutdown

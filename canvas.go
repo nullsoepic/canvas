@@ -20,14 +20,18 @@ func saveCanvas() {
     }
     defer file.Close()
 
+    buf := make([]byte, canvasWidth*canvasHeight*3)
     for y := 0; y < canvasHeight; y++ {
         for x := 0; x < canvasWidth; x++ {
-            _, err := file.Write([]byte{byte(canvas[y][x][0]), byte(canvas[y][x][1]), byte(canvas[y][x][2])})
-            if err != nil {
-                log.Printf("Failed to write to canvas file: %v", err)
-                return
-            }
+            buf[(y*canvasWidth+x)*3] = byte(canvas[y][x][0])
+            buf[(y*canvasWidth+x)*3+1] = byte(canvas[y][x][1])
+            buf[(y*canvasWidth+x)*3+2] = byte(canvas[y][x][2])
         }
+    }
+    _, err = file.Write(buf)
+    if err != nil {
+        log.Printf("Failed to write to canvas file: %v", err)
+        return
     }
     log.Println("Canvas saved successfully")
 }

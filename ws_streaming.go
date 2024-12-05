@@ -39,7 +39,7 @@ func HandleDataWS(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	pixelsPerMessage := 5000
+	pixelsPerMessage := canvasWidth * 50
 	totalPixels := canvasWidth * canvasHeight
 	numMessages := (totalPixels + pixelsPerMessage - 1) / pixelsPerMessage
 
