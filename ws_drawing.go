@@ -1,9 +1,9 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"sync"
-	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -27,29 +27,26 @@ func HandleDrawWS(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	// Set a timer to close the connection after 30 seconds of inactivity
-	inactivityTimer := time.AfterFunc(30*time.Second, func() {
-		conn.WriteMessage(websocket.CloseMessage, []byte{})
-		conn.Close()
-	})
-
 	for {
 		var data Pixel
 		err := conn.ReadJSON(&data)
 		if err != nil {
+			drawingMutex.Lock()
+			log.Println("Error reading message:", err)
 			conn.WriteMessage(websocket.TextMessage, []byte("err"))
+			drawingMutex.Unlock()
 			break
 		}
-		if data.X < 0 || data.X >= 512 || data.Y < 0 || data.Y >= 512 {
+		if data.X < 0 || data.X >= canvasWidth || data.Y < 0 || data.Y >= canvasHeight {
+			drawingMutex.Lock()
+			log.Println("Invalid pixel data:", data)
 			conn.WriteMessage(websocket.TextMessage, []byte("err"))
+			drawingMutex.Unlock()
 			continue
 		}
 		drawingMutex.Lock()
 		placePixel(data.X, data.Y, data.R, data.G, data.B)
-		drawingMutex.Unlock()
 		conn.WriteMessage(websocket.TextMessage, []byte("ok"))
-		inactivityTimer.Reset(30 * time.Second)
+		drawingMutex.Unlock()
 	}
-
-	inactivityTimer.Stop()
 }

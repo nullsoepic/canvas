@@ -60,7 +60,7 @@ func UpdatePixel(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
 		return
 	}
-	if data.X < 0 || data.X >= 512 || data.Y < 0 || data.Y >= 512 {
+	if data.X < 0 || data.X >= canvasWidth || data.Y < 0 || data.Y >= canvasHeight {
 		http.Error(w, "Invalid coordinates", http.StatusBadRequest)
 		return
 	}
@@ -84,7 +84,7 @@ func GetPixel(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid query parameters", http.StatusBadRequest)
 		return
 	}
-	if x < 0 || x >= 512 || y < 0 || y >= 512 {
+	if x < 0 || x >= canvasWidth || y < 0 || y >= canvasHeight {
 		http.Error(w, "Invalid coordinates", http.StatusBadRequest)
 		return
 	}

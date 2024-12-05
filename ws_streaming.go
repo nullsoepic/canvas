@@ -40,7 +40,7 @@ func HandleDataWS(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	pixelsPerMessage := 5000
-	totalPixels := 512 * 512
+	totalPixels := canvasWidth * canvasHeight
 	numMessages := (totalPixels + pixelsPerMessage - 1) / pixelsPerMessage
 
 	for i := 0; i < numMessages; i++ {
@@ -53,9 +53,9 @@ func HandleDataWS(w http.ResponseWriter, r *http.Request) {
 		buf[0] = 0x01
 		binary.BigEndian.PutUint16(buf[1:3], uint16(end-start))
 		offset := 3
-		for y := 0; y < 512; y++ {
-			for x := 0; x < 512; x++ {
-				idx := y*512 + x
+		for y := 0; y < canvasWidth; y++ {
+			for x := 0; x < canvasHeight; x++ {
+				idx := y*canvasHeight + x
 				if idx < start || idx >= end {
 					continue
 				}
