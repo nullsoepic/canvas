@@ -1,4 +1,4 @@
-module server
+module canvas
 
 go 1.22.3
 

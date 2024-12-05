@@ -1,11 +1,18 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"html/template"
 	"net/http"
 	"strconv"
 )
+
+//go:embed static/index.html
+var indexHTML string
+
+//go:embed static/docs.html
+var docsHTML string
 
 // FRONTEND ENDPOINTS
 
@@ -14,7 +21,7 @@ func ServeIndex(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	tmpl, err := template.ParseFiles("static/index.html")
+	tmpl, err := template.New("index").Parse(indexHTML)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
@@ -30,7 +37,7 @@ func ServeDocs(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	tmpl, err := template.ParseFiles("static/docs.html")
+	tmpl, err := template.New("docs").Parse(docsHTML)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
@@ -61,7 +68,6 @@ func UpdatePixel(w http.ResponseWriter, r *http.Request) {
 	placePixel(data.X, data.Y, data.R, data.G, data.B)
 	w.WriteHeader(http.StatusOK)
 }
-
 
 func GetPixel(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
