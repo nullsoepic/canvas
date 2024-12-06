@@ -33,7 +33,6 @@ func saveCanvas() {
         log.Printf("Failed to write to canvas file: %v", err)
         return
     }
-    log.Println("Canvas saved successfully")
 }
 
 func loadCanvas() {
