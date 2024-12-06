@@ -3,10 +3,16 @@
     <head>
         <title>Canvas</title>
         <style>
+            :root {
+                --background-color: #0c0c0d;
+                --link-color: #2a2a2b;
+                --link-hover-color: #3a3a3b;
+                --warning-color: #ff0000;
+            }
             body {
                 margin: 0;
                 overflow: hidden;
-                background: #0c0c0d;
+                background: var(--background-color);
                 display: flex;
                 justify-content: center;
                 align-items: center;
@@ -20,13 +26,13 @@
             }
             .link {
                 position: absolute;
-                color: #2a2a2b;
+                color: var(--link-color);
                 text-decoration: none;
                 font-family: sans-serif;
                 transition: color 0.2s;
             }
             .link:hover {
-                color: #3a3a3b;
+                color: var(--link-hover-color);
             }
             .docs-link {
                 left: 20px;
@@ -40,7 +46,7 @@
                 position: absolute;
                 top: 20px;
                 right: 20px;
-                color: #ff0000;
+                color: var(--warning-color);
                 font-family: sans-serif;
                 font-weight: bold;
             }
@@ -52,62 +58,78 @@
         <a href="https://discord.gg/dqezDtGQbD" class="link discord-link" target="_blank">Discord</a>
         <div class="beta-warning">BETA TEST</div>
         <script>
-            const canvas = document.getElementById("canvas");
-            const ctx = canvas.getContext("2d");
-            
-            function initCanvas() {
-                ctx.fillStyle = "#0c0c0d";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
+            class CanvasManager {
+                constructor() {
+                    this.canvas = document.getElementById("canvas");
+                    this.ctx = this.canvas.getContext("2d");
+                    this.init();
+                }
 
-            function drawPixel(x, y, r, g, b) {
-                ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-                ctx.fillRect(x, y, 1, 1);
-            }
+                init() {
+                    this.ctx.fillStyle = "#0c0c0d";
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                }
 
-            function handlePixelData(data, offset) {
-                const n = (data[offset] << 8) | data[offset + 1];
-                offset += 2;
-                
-                for (let i = 0; i < n; i++) {
-                    if (offset + 7 > data.length) break;
-                    
-                    const x = (data[offset] << 8) | data[offset + 1];
-                    const y = (data[offset + 2] << 8) | data[offset + 3];
-                    const r = data[offset + 4];
-                    const g = data[offset + 5];
-                    const b = data[offset + 6];
-                    
-                    drawPixel(x, y, r, g, b);
-                    offset += 7;
+                drawPixel(x, y, r, g, b) {
+                    this.ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                    this.ctx.fillRect(x, y, 1, 1);
                 }
             }
 
-            function connectWebSocket() {
-                const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-                const ws = new WebSocket(`${protocol}${window.location.host}/ws/stream`);
-                ws.binaryType = 'arraybuffer';
+            class WebSocketManager {
+                constructor(canvasManager) {
+                    this.canvasManager = canvasManager;
+                    this.connect();
+                }
 
-                ws.onmessage = function(event) {
+                connect() {
+                    const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+                    const ws = new WebSocket(`${protocol}${window.location.host}/ws/stream`);
+                    ws.binaryType = 'arraybuffer';
+
+                    ws.onmessage = this.handleMessage.bind(this);
+                    ws.onclose = this.handleClose.bind(this);
+                    ws.onerror = this.handleError.bind(this);
+                }
+
+                handleMessage(event) {
                     if (event.data instanceof ArrayBuffer) {
                         const data = new Uint8Array(event.data);
                         const msgType = data[0];
-                        handlePixelData(data, 1);
+                        this.handlePixelData(data, 1);
                     }
-                };
+                }
 
-                ws.onclose = function() {
+                handlePixelData(data, offset) {
+                    const n = (data[offset] << 8) | data[offset + 1];
+                    offset += 2;
+                    
+                    for (let i = 0; i < n; i++) {
+                        if (offset + 7 > data.length) break;
+                        
+                        const x = (data[offset] << 8) | data[offset + 1];
+                        const y = (data[offset + 2] << 8) | data[offset + 3];
+                        const r = data[offset + 4];
+                        const g = data[offset + 5];
+                        const b = data[offset + 6];
+                        
+                        this.canvasManager.drawPixel(x, y, r, g, b);
+                        offset += 7;
+                    }
+                }
+
+                handleClose() {
                     console.log('WebSocket connection closed. Attempting to reconnect...');
-                    setTimeout(connectWebSocket, 1000);
-                };
+                    setTimeout(() => this.connect(), 1000);
+                }
 
-                ws.onerror = function(error) {
+                handleError(error) {
                     console.error('WebSocket error:', error);
-                };
+                }
             }
 
-            initCanvas();
-            connectWebSocket();
+            const canvasManager = new CanvasManager();
+            const wsManager = new WebSocketManager(canvasManager);
         </script>
     </body>
 </html>

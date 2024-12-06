@@ -62,7 +62,6 @@ func loadCanvas() {
 func placePixel(x, y int, r, g, b int) {
     if x >= 0 && x < canvasWidth && y >= 0 && y < canvasHeight {
         canvas[y][x] = [3]int{r, g, b}
-        // Broadcast the pixel data
         dataBroadcast <- Pixel{X: x, Y: y, R: r, G: g, B: b}
     }
 }

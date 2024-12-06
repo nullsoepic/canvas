@@ -27,11 +27,13 @@ func main() {
     http.HandleFunc("/updatePixel", UpdatePixel)
     http.HandleFunc("/getPixel", GetPixel)
     http.HandleFunc("/ws/stream", HandleDataWS)
-    http.HandleFunc("/ws/draw", HandleDrawWS)
+
+    if os.Getenv("WS_DRAW") == "1" {
+        http.HandleFunc("/ws/draw", HandleDrawWS)
+    }
 
     go handleMessages()
 
-    // Save canvas every minute
     go func() {
         ticker := time.NewTicker(time.Minute)
         defer ticker.Stop()
@@ -50,7 +52,6 @@ func main() {
         IdleTimeout:  120 * time.Second,
     }
 
-    // Handle OS signals for graceful shutdown
     stop := make(chan os.Signal, 1)
     signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 

@@ -159,7 +159,7 @@
       </div>
 
       <div class="endpoint">
-          <h3>3. Data Stream Websocket</h3>
+          <h3>3. Data Stream WebSocket</h3>
           <p><span class="method get">GET</span> <span class="url-path">/ws/stream</span></p>
           <p>Establishes a WebSocket connection for real-time canvas updates and interaction.</p>
 
@@ -178,12 +178,12 @@
               </li>
           </ul>
           <p>Upon first connection to the websocket the entire canvas is sent in chunks of 5000 pixels.
-          <br>Data is chunked and sent in batches every 30 miliseconds.
-          <br><a href="https://gist.github.com/nullsoepic/d9182f84b22c6224915c3c32064afdeb">Example code is available.</a></p>
+          <br>Data is chunked and sent in batches of 100 every 10 milliseconds.
+          <br><a href="https://gist.github.com/nullsoepic/d9182f84b22c6224915c3c32064afdeb">Some basic example code is available.</a></p>
       </div>
 
       <div class="endpoint">
-          <h3>4. Drawing Websocket</h3>
+          <h3>4. Drawing WebSocket</h3>
           <p><span class="method get">GET</span> <span class="url-path">/ws/draw</span></p>
           <p>Establishes a WebSocket connection for updating pixels on the canvas.</p>
 
@@ -191,7 +191,7 @@
           <ul>
               <li><strong>Request:</strong> JSON object containing the pixel coordinates and new RGB values.
                   <pre>{
-    "x": 100,
+    "x": 100
     "y": 100,
     "r": 255,
     "g": 0,
